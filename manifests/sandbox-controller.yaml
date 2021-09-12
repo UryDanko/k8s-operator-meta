@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sandbox-controller
+  namespace: metacontroller
+spec:
+  selector:
+    app: sandbox-controller
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8000
+    name: metacontroller
+  - port: 40000
+    protocol: TCP
+    targetPort: 40000
+    name: debug
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sandbox-controller
+  namespace: metacontroller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sandbox-controller
+  template:
+    metadata:
+      labels:
+        app: sandbox-controller
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: controller
+        image: ydanko/metacontroller:0.1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          protocol: TCP
+          name: metacontroller
+        - containerPort: 40000
+          protocol: TCP
+          name: debug
+

@@ -1,0 +1,28 @@
+apiVersion: metacontroller.k8s.io/v1alpha1
+kind: CompositeController
+metadata:
+  name: sandbox-controller
+spec:
+  parentResource:
+    apiVersion: yh-ha.duckdns.org/v1
+    resource: sandboxes
+    revisionHistory:
+      fieldPaths:
+      - spec.template
+  childResources:
+  - apiVersion: v1
+    resource: pods
+    updateStrategy:
+      method: RollingRecreate
+      statusChecks:
+        conditions:
+        - type: Ready
+          status: "True"
+  hooks:
+    sync:
+      webhook:
+        url: http://sandbox-controller.metacontroller/sync
+        timeout: 10s
+    finalize:
+      webhook:
+        url: http://sandbox-controller.metacontroller/sync

@@ -8,9 +8,12 @@ Something based on Metacontroller
 
 #Implementation
 
-Something simple based on Metacontroller.
+Something simple based on Composite MetaController.
+
+# Debug.
+Make sure that local version is actually deployed before debugging. Use make goal "restart" 
 
 Steps: 
-* watch namespaces and add label
-* watch deployments and add label
-* watch pods and add label
+* Create N pods
+* Assign labels to pods
+* 

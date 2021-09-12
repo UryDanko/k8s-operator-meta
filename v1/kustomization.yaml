@@ -1,0 +1,4 @@
+bases:
+- ../manifests
+resources:
+- crdv1.yaml

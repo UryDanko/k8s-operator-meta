@@ -1,0 +1,4 @@
+resources:
+- compositecontroller.yaml
+- sandbox-controller.yaml
+
