@@ -1,4 +1,4 @@
-FROM golang:1.17.1-alpine as builder
+FROM golang:1.16-alpine3.14 as builder
 ENV CGO_ENABLED 0
 
 ADD . /src
