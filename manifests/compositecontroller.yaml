@@ -18,6 +18,7 @@ spec:
         conditions:
         - type: Ready
           status: "True"
+  resyncPeriodSeconds: 10
   hooks:
     sync:
       webhook:
@@ -25,4 +26,4 @@ spec:
         timeout: 10s
     finalize:
       webhook:
-        url: http://sandbox-controller.metacontroller/sync
+        url: http://sandbox-controller.metacontroller/finalize

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	api "k8s.io/api/core/v1"
 	"log"
 	"net/http"
 	"os"
@@ -10,12 +11,20 @@ import (
 	"time"
 )
 
-func endpointSync(writer http.ResponseWriter, request *http.Request) {
-	if request.Method == http.MethodPost {
-		writer.Header().Set("content-type", "application/json")
-		writer.WriteHeader(http.StatusOK)
+type MetaRequest struct {
+	Pod api.Pod `json:"pod:object"`
+}
+
+type MetaResponse struct {
+	Pod api.Pod `json:"pod:object"`
+}
+
+func endpointSync(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		w.Header().Set("content-type", "application/json")
+		w.WriteHeader(http.StatusOK)
 	} else {
-		writer.WriteHeader(http.StatusMethodNotAllowed)
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
 
@@ -23,13 +32,17 @@ func endpointHealth(writer http.ResponseWriter, request *http.Request) {
 	writer.Write([]byte("ok"))
 }
 
+func endpointFinalize(writer http.ResponseWriter, request *http.Request) {
+	writer.Write([]byte("Finalizing..."))
+}
+
 func main() {
 	log.Printf("Sandbox MetaController is about to start\n")
-	log.Printf("Ku-Ku")
 	address := "0.0.0.0:8000"
 
 	http.Handle("/health", http.HandlerFunc(endpointHealth))
 	http.Handle("/sync", http.HandlerFunc(endpointSync))
+	http.Handle("/finalize", http.HandlerFunc(endpointFinalize))
 
 	log.Printf("Starting....")
 	stop := make(chan os.Signal)
