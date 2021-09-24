@@ -16,7 +16,8 @@ metadata:
   name: nginx-backend
 spec:
   serviceName: nginx-backend
-  replicas: 3
+  replicas: 2
+  restartPolicy: Always
   selector:
     matchLabels:
       app: nginx

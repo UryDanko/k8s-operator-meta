@@ -18,7 +18,7 @@ undeploy-sandbox:
 undeploy-sandbox-controller:
 	kubectl delete -f manifests/sandbox-controller.yaml
 
-restart: docker-debug-build docker-push undeploy-sandbox-controller deploy-metacontroller deploy-sandbox
+restart: docker-debug-build docker-push deploy-metacontroller deploy-sandbox
 
 undeploy-metacontroller:
 	kubectl delete -k ${CONTROLLER_VERSION}

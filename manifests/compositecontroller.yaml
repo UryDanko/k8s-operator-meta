@@ -3,6 +3,7 @@ kind: CompositeController
 metadata:
   name: sandbox-controller
 spec:
+  generateSelector: true
   parentResource:
     apiVersion: yh-ha.duckdns.org/v1
     resource: sandboxes
@@ -13,11 +14,12 @@ spec:
   - apiVersion: v1
     resource: pods
     updateStrategy:
-      method: RollingRecreate
-      statusChecks:
-        conditions:
-        - type: Ready
-          status: "True"
+      method: Recreate
+#      method: RollingRecreate
+#      statusChecks:
+#        conditions:
+#        - type: Ready
+#          status: "True"
   resyncPeriodSeconds: 60
   hooks:
     sync:
