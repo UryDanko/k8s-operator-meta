@@ -32,6 +32,9 @@ build:
 docker-build:
 	docker build  -t $(CONTAINER) -f Dockerfile .
 
+docker-debug-base-build:
+	docker build  -t golang-delve:latest -f Dockerfile.delve .
+
 docker-debug-build:
 	docker build -f Dockerfile.debug -t $(CONTAINER) .
 

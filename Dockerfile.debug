@@ -5,12 +5,12 @@ ADD . /src
 WORKDIR /src
 RUN go get
 RUN GOTRACEBACK=all go build -gcflags "all=-N -l" -o metacontroller
-RUN go get github.com/go-delve/delve/cmd/dlv
-# -------------------------
+
+FROM golang-delve:latest as debug
 
 FROM alpine:3.14
 COPY --from=builder /src/metacontroller /metacontroller
-COPY --from=builder /go/bin/dlv /
+COPY --from=debug /go/bin/dlv /
 
 EXPOSE 8000 40000
 
