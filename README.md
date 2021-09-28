@@ -17,5 +17,7 @@ Something simple based on Composite MetaController.
 
 Steps: 
 * Create N pods
-* Assign labels to pods
+
+# Known issues
+* method: RollingRecreate - doesn't really work with pods?
 * 

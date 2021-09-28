@@ -68,11 +68,11 @@ func sync(request *controller.SyncRequest) (*controller.SyncResponse, error) {
 	return response, nil
 }
 
-func endpointHealth(writer http.ResponseWriter, request *http.Request) {
+func handlerHealth(writer http.ResponseWriter, request *http.Request) {
 	writer.Write([]byte("ok"))
 }
 
-func endpointFinalize(writer http.ResponseWriter, request *http.Request) {
+func handlerFinalize(writer http.ResponseWriter, request *http.Request) {
 	writer.Write([]byte("Finalizing..."))
 }
 
@@ -119,9 +119,9 @@ func main() {
 	log.Printf("Sandbox MetaController is about to start\n")
 	address := "0.0.0.0:8000"
 
-	http.Handle("/health", http.HandlerFunc(endpointHealth))
+	http.Handle("/health", http.HandlerFunc(handlerHealth))
 	http.Handle("/sync", http.HandlerFunc(handlerSync))
-	http.Handle("/finalize", http.HandlerFunc(endpointFinalize))
+	http.Handle("/finalize", http.HandlerFunc(handlerFinalize))
 
 	stop := make(chan os.Signal)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
