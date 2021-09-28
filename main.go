@@ -7,57 +7,23 @@ import (
 	"io/ioutil"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"sandbox/controller"
 	"syscall"
 	"time"
 )
 
-type Controller struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata"`
-	Spec              ControllerSpec   `json:"spec"`
-	Status            ControllerStatus `json:"status"`
-}
-
-type ControllerSpec struct {
-	Message string `json:"message"`
-}
-
-type ControllerStatus struct {
-	Replicas  int `json:"replicas"`
-	Succeeded int `json:"succeeded"`
-}
-
-type SyncRequestChildren struct {
-	Pods map[string]*corev1.Pod `json:"Pod.v1"`
-}
-
-type SyncRequest struct {
-	Children SyncRequestChildren `json:"children"`
-	Parent   Controller          `json:"parent"`
-}
-
-type SyncResponse struct {
-	// Set the delay (in seconds, as a float) before an optional, one-time, per-object resync.
-	ResyncAfterSeconds float32 `json:"resync_after_seconds"`
-	// A JSON object that will completely replace the status field within the parent object.
-	Status ControllerStatus `json:"status"`
-	// A list of JSON objects representing all the desired children for this parent object.
-	Children []runtime.Object `json:"children"`
-}
-
-func sync(request *SyncRequest) (*SyncResponse, error) {
-	var response = &SyncResponse{
+func sync(request *controller.SyncRequest) (*controller.SyncResponse, error) {
+	var response = &controller.SyncResponse{
 		ResyncAfterSeconds: 1 * 60,
 	}
 
 	for _, pod := range request.Children.Pods {
 		response.Status.Replicas++
-		if pod.Status.Phase == corev1.PodSucceeded {
+		if pod.Status.Phase == corev1.PodRunning {
 			response.Status.Succeeded++
 		}
 	}
@@ -78,7 +44,7 @@ func sync(request *SyncRequest) (*SyncResponse, error) {
 			Labels: map[string]string{
 				"app":        "nginx",
 				"component":  "backend",
-				"generation": "v2",
+				"generation": "v1",
 			},
 		},
 		Spec: corev1.PodSpec{
@@ -129,7 +95,7 @@ func handlerSync(w http.ResponseWriter, r *http.Request) {
 	//bodyString := string(bodyBytes)
 	//fmt.Println(bodyString)
 
-	request := &SyncRequest{}
+	request := &controller.SyncRequest{}
 	if err := json.Unmarshal(body, request); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

@@ -1,4 +1,4 @@
-module mod
+module sandbox
 
 go 1.17
 
