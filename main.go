@@ -17,7 +17,7 @@ import (
 )
 
 func sync(request *controller.SyncRequest) (*controller.SyncResponse, error) {
-	var response = &controller.SyncResponse{
+	response := &controller.SyncResponse{
 		ResyncAfterSeconds: 1 * 60,
 	}
 
@@ -28,42 +28,37 @@ func sync(request *controller.SyncRequest) (*controller.SyncResponse, error) {
 		}
 	}
 
-	prettyJSON, _ := json.MarshalIndent(request.Children, "", "  ")
-	fmt.Println(string(prettyJSON))
-	//if len(parentPods) == 0 {
-	//	log.Printf("Parent POD list is empty!!!")
-	//}
-
-	pod := corev1.Pod{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "Pod",
-			APIVersion: "v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "nginx1",
-			Labels: map[string]string{
-				"app":        "nginx",
-				"component":  "backend",
-				"generation": "v1",
+	for i := 0; i < int(*request.Parent.Spec.Replicas); i++ {
+		pod := corev1.Pod{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "Pod",
+				APIVersion: "v1",
 			},
-		},
-		Spec: corev1.PodSpec{
-			Containers: []corev1.Container{{
-				Image: "gcr.io/google_containers/nginx-slim:0.8",
-				Name:  "nginx-sandbox",
-				Ports: []corev1.ContainerPort{{
-					ContainerPort: 80,
-					Name:          "nginx-sandbox",
-				}},
-				ImagePullPolicy: "Always",
+			ObjectMeta: metav1.ObjectMeta{
+				Name: fmt.Sprintf("nginx%d", i),
+				Labels: map[string]string{
+					"app":        "nginx",
+					"component":  "backend",
+					"generation": "v1",
+				},
 			},
+			Spec: corev1.PodSpec{
+				Containers: []corev1.Container{{
+					Image: "gcr.io/google_containers/nginx-slim:0.8",
+					Name:  "nginx-sandbox",
+					Ports: []corev1.ContainerPort{{
+						ContainerPort: 80,
+						Name:          "nginx-sandbox",
+					}},
+					ImagePullPolicy: "Always",
+				},
+				},
 			},
-		},
+		}
+		response.Children = append(response.Children, &pod)
 	}
 
-	response.Children = append(response.Children, &pod)
-
-	prettyJSON, _ = json.MarshalIndent(response, "", "  ")
+	prettyJSON, _ := json.MarshalIndent(response, "", "  ")
 	fmt.Println(string(prettyJSON))
 	return response, nil
 }

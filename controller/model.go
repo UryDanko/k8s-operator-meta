@@ -1,6 +1,7 @@
 package controller
 
 import (
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -12,14 +13,15 @@ type Status struct {
 }
 
 type Spec struct {
-	Message string `json:"message"`
+	ServiceName string `json:"serviceName"`
+	Replicas    string `json:"replicas"`
 }
 
 type Controller struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata"`
-	Spec              Spec   `json:"spec"`
-	Status            Status `json:"status"`
+	Spec              appsv1.DeploymentSpec `json:"spec"`
+	Status            Status                `json:"status"`
 }
 
 type SyncRequestChildren struct {
