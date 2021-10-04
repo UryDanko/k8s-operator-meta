@@ -25,7 +25,8 @@ type Controller struct {
 }
 
 type SyncRequestChildren struct {
-	Pods map[string]*corev1.Pod `json:"Pod.v1"`
+	Pods     map[string]*corev1.Pod     `json:"Pod.v1"`
+	Services map[string]*corev1.Service `json:"Service.v1"`
 }
 
 type SyncRequest struct {

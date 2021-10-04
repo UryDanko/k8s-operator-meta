@@ -16,6 +16,8 @@ import (
 	"time"
 )
 
+const generation = "v1"
+
 func sync(request *controller.SyncRequest) (*controller.SyncResponse, error) {
 	response := &controller.SyncResponse{
 		ResyncAfterSeconds: 1 * 60,
@@ -39,7 +41,7 @@ func sync(request *controller.SyncRequest) (*controller.SyncResponse, error) {
 				Labels: map[string]string{
 					"app":        "nginx",
 					"component":  "backend",
-					"generation": "v1",
+					"generation": generation,
 				},
 			},
 			Spec: corev1.PodSpec{
@@ -57,6 +59,32 @@ func sync(request *controller.SyncRequest) (*controller.SyncResponse, error) {
 		}
 		response.Children = append(response.Children, &pod)
 	}
+
+	svc := corev1.Service{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Service",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "nginx-sandbox",
+			Labels: map[string]string{
+				"component":  "backend",
+				"generation": generation,
+			},
+		},
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
+				Name:     "web",
+				Protocol: corev1.ProtocolTCP,
+				Port:     80,
+			}},
+			Selector: map[string]string{
+				"app": "nginx",
+			},
+			Type: corev1.ServiceTypeClusterIP,
+		},
+	}
+	response.Children = append(response.Children, &svc)
 
 	prettyJSON, _ := json.MarshalIndent(response, "", "  ")
 	fmt.Println(string(prettyJSON))
@@ -82,13 +110,6 @@ func handlerSync(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	//bodyBytes, err := ioutil.ReadAll(r.Body)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//bodyString := string(bodyBytes)
-	//fmt.Println(bodyString)
 
 	request := &controller.SyncRequest{}
 	if err := json.Unmarshal(body, request); err != nil {

@@ -20,6 +20,10 @@ spec:
 #        conditions:
 #        - type: Ready
 #          status: "True"
+  - apiVersion: v1
+    resource: services
+    updateStrategy:
+      method: InPlace
   resyncPeriodSeconds: 60
   hooks:
     sync:
