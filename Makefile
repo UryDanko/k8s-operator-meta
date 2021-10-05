@@ -3,6 +3,7 @@ APP=metacontroller
 CONTAINER=ydanko/${APP}:${VERSION}
 CONTROLLER_VERSION=v1
 
+# ---- Init and deploy -------
 init-metacontroller:
 	kubectl apply -k https://github.com/metacontroller/metacontroller/manifests/production
 
@@ -12,13 +13,14 @@ deploy-metacontroller:
 deploy-sandbox:
 	kubectl apply -f sandbox.yaml
 
+restart: docker-debug-build docker-push deploy-metacontroller deploy-sandbox
+
+# ----- Undeploy ----
 undeploy-sandbox:
 	kubectl delete -f sandbox.yaml
 
 undeploy-sandbox-controller:
 	kubectl delete -f manifests/sandbox-controller.yaml
-
-restart: docker-debug-build docker-push deploy-metacontroller deploy-sandbox
 
 undeploy-metacontroller:
 	kubectl delete -k ${CONTROLLER_VERSION}
@@ -26,6 +28,7 @@ undeploy-metacontroller:
 install:
 	go get -v
 
+# ------ Docker ------
 build:
 	GOTRACEBACK=all go build -gcflags "all=-N -l" -o metacontroller
 
